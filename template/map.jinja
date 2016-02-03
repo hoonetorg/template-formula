@@ -9,13 +9,11 @@ Setup variable using grains['os_family'] based logic, only add key:values here
 that differ from whats in defaults.yaml
 ##}
 {% set os_family_map = salt['grains.filter_by']({
-        'Debian': {},
-        'Suse': {},
-        'Arch': {
-            "pkg" : 'template-arch',
+        'Debian': {
+            "sysconfdir" : '/etc/default',
         },
         'RedHat': {
-            "config": '/etc/template.conf',
+            "sysconfdir": '/etc/sysconf',
         },
   }
   , grain="os_family"
