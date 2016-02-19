@@ -3,6 +3,6 @@
 
 {% from "template/map.jinja" import template with context %}
 
-template-pkg:
+template_install__pkg:
   pkg.installed:
-    - name: {{ template.pkg }}
+    - pkgs: {{ template.pkgs }}

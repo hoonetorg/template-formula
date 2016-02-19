@@ -1,7 +1,21 @@
 # -*- coding: utf-8 -*-
 # vim: ft=yaml
 template:
-  pkg: template
-  config: '/etc/template'
+  pkgs: 
+    - template
   service:
     name: template
+    state: running
+    enable: True
+  conffile: '/etc/template/template.ini'
+  
+  # default settings
+  conf:
+    'without_section_pre':
+      opt-without-section-at-beginning-of-file: 'enabled'
+    '[sect1]':
+      opt1: value1
+    '[sect2]':
+      opt2: value2
+    'without_section_post':
+      opt-without-section-at-end-of-file-will-be-in-last-section: 'enabled'
