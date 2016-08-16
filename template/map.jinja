@@ -1,24 +1,73 @@
 # -*- coding: utf-8 -*-
-# vim: ft=jinja
+# vim: ft=yaml
 
-{% import_yaml 'template/defaults.yaml' as default_settings %}
+{%- load_yaml as template_os_family %}
 
-{% set os_family_map = salt['grains.filter_by']({
-        'Debian': {
-            "sysconfdir" : '/etc/default',
-        },
-        'RedHat': {
-            "sysconfdir": '/etc/sysconfig',
-        },
-  }
-  , grain="os_family"
-  , merge=salt['pillar.get']('template:lookup'))
-%}
-{% do default_settings.template.update(os_family_map) %}
 
-{% set template = salt['pillar.get'](
-        'template',
-        default=default_settings.template,
-        merge=True
-    )
-%}
+#base dictionary (defaults for all os's, will be merged with and overridden by os_family pillars)
+base:
+  #dictinary from defaults.yaml gets here
+  pkgs:
+    - template
+  service:
+    name: template
+    state: running
+    enable: True
+  conffile: '/etc/template/template.ini'
+
+  # default settings
+  conf:
+    'without_section_pre':
+      opt-without-section-at-beginning-of-file: 'enabled'
+    '[sect1]':
+      opt1: value1
+    '[sect2]':
+      opt2: value2
+    'without_section_post':
+      opt-without-section-at-end-of-file-will-be-in-last-section: 'enabled'
+
+  defaultkey_for_all_oses: frombase
+  keys:
+    - base1
+    - base2
+  base: "yes"
+
+
+#nondebian / nonredhat (overrides base, is taken when os_family grain is not in available os's)
+default:
+  sysconfdir: /etc/sysconfig
+  keys:
+    - default1
+    - default2
+  default: "yes"
+
+#debian (overrides base, is taken when os_family grain is Debian)
+Debian:
+  sysconfdir: /etc/default
+  keys:
+    - template_os_familydeb1
+    - template_os_familydeb2
+  template_os_familydeb: "yes"
+
+
+#redhat (overrides base, is taken when os_family grain is RedHat)
+RedHat:
+  sysconfdir: /etc/sysconfig
+  keys:
+    - template_os_familyrh1
+    - template_os_familyrh2
+  template_os_familyrh: "yes"
+
+
+{%- endload %}
+
+
+#create template_default_plus_pillar_lookup where 
+# - base is defaults for all os's
+# - base is merged with and overridden by os_family settings (default if os_family could not be found in dict) 
+# - resulting dict is merged with 'template:lookup' - pillar (pillar overrides)
+{%- set template_default_plus_pillar_lookup = salt['grains.filter_by'](template_os_family, grain='os_family', merge=salt['pillar.get']('template:lookup'), default='default', base='base') %}
+
+
+# now template_default_plus_pillar_lookup is merged with 'template'-pillar ('template'-pillar overrides template_default_plus_pillar_lookup
+{%- set template = salt['pillar.get']('template', default=template_default_plus_pillar_lookup, merge=True) %}

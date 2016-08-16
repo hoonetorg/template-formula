@@ -1,5 +1,10 @@
 template:
   lookup:
+    keys:
+      - template_pillar1
+      - template_pillar2
+    template_pillar: "yes"
+
     conf:
       'without_section_pre':
         opt-without-section-at-beginning-of-file: 'enabled'
