@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # vim: ft=yaml
 
-#base settings - OS independent, will be merged with and overridden by os_specific settings
-base:
+#defaults settings - OS independent, will be merged with and overridden by OS specific settings
+defaults:
   pkgs:
     - template
   service:
@@ -21,10 +21,10 @@ base:
     'without_section_post':
       opt-without-section-at-end-of-file-will-be-in-last-section: 'enabled'
 
-  defaultkey_for_all_oses: frombase
+  defaultkey_os_independent: fromdefaults
   keys:
-    - base1
-    - base2
-  base: "yes"
+    - defaults1
+    - defaults2
+  defaults: "yes"
 
 
