@@ -1,73 +1,26 @@
 # -*- coding: utf-8 -*-
 # vim: ft=yaml
 
-{%- load_yaml as template_os_family %}
+#base settings - OS independent, will be merged with and overridden by os_specific settings
+{% import_yaml "template/maps/base.map" as template_base %}
 
+#overrides base, for OSs which are not defined in os.map
+{% import_yaml "template/maps/default.map" as template_default %}
+#
+#os specific, overrides base
+{% import_yaml "template/maps/os.map" as template_os %}
 
-#base dictionary (defaults for all os's, will be merged with and overridden by os_family pillars)
-base:
-  #dictinary from defaults.yaml gets here
-  pkgs:
-    - template
-  service:
-    name: template
-    state: running
-    enable: True
-  conffile: '/etc/template/template.ini'
+{% set template_os_family = {} %}
 
-  # default settings
-  conf:
-    'without_section_pre':
-      opt-without-section-at-beginning-of-file: 'enabled'
-    '[sect1]':
-      opt1: value1
-    '[sect2]':
-      opt2: value2
-    'without_section_post':
-      opt-without-section-at-end-of-file-will-be-in-last-section: 'enabled'
+{% do template_os_family.update(template_base) %}
+{% do template_os_family.update(template_default) %}
+{% do template_os_family.update(template_os) %}
 
-  defaultkey_for_all_oses: frombase
-  keys:
-    - base1
-    - base2
-  base: "yes"
-
-
-#nondebian / nonredhat (overrides base, is taken when os_family grain is not in available os's)
-default:
-  sysconfdir: /etc/sysconfig
-  keys:
-    - default1
-    - default2
-  default: "yes"
-
-#debian (overrides base, is taken when os_family grain is Debian)
-Debian:
-  sysconfdir: /etc/default
-  keys:
-    - template_os_familydeb1
-    - template_os_familydeb2
-  template_os_familydeb: "yes"
-
-
-#redhat (overrides base, is taken when os_family grain is RedHat)
-RedHat:
-  sysconfdir: /etc/sysconfig
-  keys:
-    - template_os_familyrh1
-    - template_os_familyrh2
-  template_os_familyrh: "yes"
-
-
-{%- endload %}
-
-
-#create template_default_plus_pillar_lookup where 
-# - base is defaults for all os's
-# - base is merged with and overridden by os_family settings (default if os_family could not be found in dict) 
+# - base is for defaults, os independent
+# - base is merged with and overridden by os specific settings (os, if defined for grain os_family, default if os is not defined for grain os_family) 
 # - resulting dict is merged with 'template:lookup' - pillar (pillar overrides)
 {%- set template_default_plus_pillar_lookup = salt['grains.filter_by'](template_os_family, grain='os_family', merge=salt['pillar.get']('template:lookup'), default='default', base='base') %}
 
-
+#FIXME: why this insane double merge in salt pillars
 # now template_default_plus_pillar_lookup is merged with 'template'-pillar ('template'-pillar overrides template_default_plus_pillar_lookup
 {%- set template = salt['pillar.get']('template', default=template_default_plus_pillar_lookup, merge=True) %}

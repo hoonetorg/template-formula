@@ -1,0 +1,11 @@
+# -*- coding: utf-8 -*-
+# vim: ft=yaml
+
+#overrides base, for OSs which are not defined in os.map
+default:
+  sysconfdir: /etc/sysconfig
+  keys:
+    - default1
+    - default2
+  default: "yes"
+

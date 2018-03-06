@@ -1,0 +1,19 @@
+# -*- coding: utf-8 -*-
+# vim: ft=yaml
+
+#debian (overrides base, is taken when os_family grain is Debian)
+Debian:
+  sysconfdir: /etc/default
+  keys:
+    - template_os_familydeb1
+    - template_os_familydeb2
+  template_os_familydeb: "yes"
+
+
+#redhat (overrides base, is taken when os_family grain is RedHat)
+RedHat:
+  sysconfdir: /etc/sysconfig
+  keys:
+    - template_os_familyrh1
+    - template_os_familyrh2
+  template_os_familyrh: "yes"

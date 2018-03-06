@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 # vim: ft=yaml
-template:
-  pkgs: 
+
+#base settings - OS independent, will be merged with and overridden by os_specific settings
+base:
+  pkgs:
     - template
   service:
     name: template
     state: running
     enable: True
   conffile: '/etc/template/template.ini'
-  
-  # default settings
+
   conf:
     'without_section_pre':
       opt-without-section-at-beginning-of-file: 'enabled'
@@ -19,3 +20,11 @@ template:
       opt2: value2
     'without_section_post':
       opt-without-section-at-end-of-file-will-be-in-last-section: 'enabled'
+
+  defaultkey_for_all_oses: frombase
+  keys:
+    - base1
+    - base2
+  base: "yes"
+
+
